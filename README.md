@@ -103,9 +103,3 @@ Geliştirdiğimiz **multi-tab çözümü**, modern web uygulamalarının karmaş
 > **Lisanssız indirebilir ve kullanabilirsiniz.**
 
 ---
-
-## Kurulum ve Kullanım
-
-```bash
-yarn multi-tab
-```
