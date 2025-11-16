@@ -1,0 +1,78 @@
+@use "./variables" as *;
+
+/*
+ * grid size
+*/
+@mixin breakpoint-xs-phone() {
+  @media (max-width: $breakpoint-xs-phone) {
+    @content;
+  }
+}
+
+@mixin breakpoint-s-phone() {
+  @media (max-width: $breakpoint-s-phone) {
+    @content;
+  }
+}
+
+@mixin breakpoint-phone() {
+  @media (max-width: $breakpoint-phone) {
+    @content;
+  }
+}
+
+@mixin breakpoint-x-phone() {
+  @media (max-width: $breakpoint-x-phone) {
+    @content;
+  }
+}
+
+@mixin breakpoint-tablet() {
+  @media (max-width: $breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin breakpoint-x-tablet() {
+  @media (max-width: $breakpoint-x-tablet) {
+    @content;
+  }
+}
+
+@mixin grid($breakpoint) {
+  @if $breakpoint==x-tablet {
+    @media (max-width: $breakpoint-x-tablet) {
+      @content;
+    }
+  }
+
+  @if $breakpoint==tablet {
+    @media (max-width: $breakpoint-tablet) {
+      @content;
+    }
+  }
+
+  @if $breakpoint==x-phone {
+    @media (max-width: $breakpoint-x-phone) {
+      @content;
+    }
+  }
+
+  @if $breakpoint==phone {
+    @media (max-width: $breakpoint-phone) {
+      @content;
+    }
+  }
+
+  @if $breakpoint==s-phone {
+    @media (max-width: $breakpoint-s-phone) {
+      @content;
+    }
+  }
+
+  @if $breakpoint==xs-phone {
+    @media (max-width: $breakpoint-xs-phone) {
+      @content;
+    }
+  }
+}

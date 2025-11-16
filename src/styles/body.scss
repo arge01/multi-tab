@@ -1,0 +1,47 @@
+@use "./variables"as *;
+@use './mixin'as *;
+/*
+ * grid(
+  ***********************
+ * x-tablet = 1200px *xl
+ * tablet   = 992px  *lg
+ * x-phone  = 768px  *md
+ * phone    = 576px  *sm
+ * s-phone  = 375px  *xs
+ * xs-phone = 320px  *xxs
+  ***********************
+ * )
+*/
+@use './grid'as *;
+
+html,
+body {
+  background: $background;
+  @include font-declare();
+  min-width: $breakpoint-xs-phone;
+  @include overflow(auto);
+  margin: 0;
+  padding: 0;
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    @include font-declare();
+  }
+
+  ul,
+  ol {
+    list-style-type: none;
+  }
+
+  li {
+    display: list-item;
+  }
+
+  a {
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
