@@ -1,0 +1,32 @@
+name: Publish Package to npmjs
+
+on:
+  release:
+    types: [published] # Bu workflow, GitHub üzerinden bir "Release" yayınladığınızda tetiklenir.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # 1. Node.js'i kuruyoruz (Npm'e publish edebilmek için registry-url önemli)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      # 2. Bağımlılıkları yüklüyoruz
+      - run: yarn install --frozen-lockfile --ignore-engines
+
+      # 3. Kod kalitesini kontrol ediyoruz (Lint & Test)
+      - run: yarn lint
+      - run: yarn test
+
+      # 4. Paketi build ediyoruz
+      - run: yarn build
+
+      # 5. NPM'e publish ediyoruz (NODE_AUTH_TOKEN github secrets'tan okunur)
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
