@@ -4,7 +4,22 @@
   "description": "A headless, accessible, router-agnostic multi-tab component library for React with TypeScript generics",
   "type": "module",
   "license": "MIT",
-  "author": "Arif GEVENCİ",
+  "author": "gevenci.arif@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arifgevinci/react-multi-tab.git"
+  },
+  "keywords": [
+    "react",
+    "tabs",
+    "multi-tab",
+    "accessible",
+    "headless",
+    "typescript",
+    "a11y",
+    "wai-aria",
+    "router-agnostic"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -96,16 +111,5 @@
     "typescript-eslint": "^8.24.1",
     "vite": "^5.0.0",
     "vitest": "^3.2.1"
-  },
-  "keywords": [
-    "react",
-    "tabs",
-    "multi-tab",
-    "accessible",
-    "headless",
-    "typescript",
-    "a11y",
-    "wai-aria",
-    "router-agnostic"
-  ]
+  }
 }
