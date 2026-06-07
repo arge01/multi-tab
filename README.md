@@ -1,130 +1,190 @@
-# React'te Modern Multi-Tab Uygulaması Geliştirme [Scalable Architecture]
+# react-multi-tab
 
-Bu makalemde, React ve TypeScript kullanarak geliştirdiğimiz modern multi-tab (çoklu sekme) sisteminin teknik detaylarını ve avantajlarını paylaşıyorum.
+A headless, accessible, router-agnostic, and fully type-safe multi-tab component library for React.
 
-Geliştirdiğim çözüm; karmaşık projeler, bir birlerini taklit eden sayfalar, her tab için ayrı state ve props entegrasyonu karmaşasını gidermekte, uygulamalarda kullanıcı deneyimini, geri bildirimleri, sayfaların hızlı bakımını, önemli ölçüde iyileştiğini göreceksiniz.
+[![npm version](https://img.shields.io/npm/v/react-multi-tab.svg)](https://npmjs.org/package/react-multi-tab)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Hedef: Tek bir komut ile, kendi içerisinde state yönetimi sunan multi-page özelliği ekleme,
+## Features
 
-![image1.png](assets/image1.png)
+- **Agnostic & Pluggable:** Works independently of any bundler or router. Includes adapters for memory, URL Search Params, and `react-router-dom`.
+- **Headless & Accessible:** Follows the WAI-ARIA Tabs pattern. Complete keyboard navigation (`Arrow keys`, `Home`, `End`) out of the box. You control the styling.
+- **TypeScript Generics:** Fully type-safe context, components, and hooks. Never use `any` again.
+- **State Preservation:** Keeps tab content mounted when inactive (via `hidden` attribute) to preserve form states and scroll positions.
 
-## Teknoloji
+## 🚀 Performance & Developer Experience (DX)
 
-- **React v18^+** **TypeScript v19^+**
-- **React Router DOM** v6^+
-- **Context API** + **Custom Hooks veya Redux**
-- **Decorator Pattern**
+We have built the core state-management of `react-multi-tab` to meet the highest performance and Developer Experience (DX) standards.
 
-## Temel Özellikler
+### 1. `useSyncExternalStore` (The Performance Boost)
+We stripped the large object out of React Context and replaced it with a custom Vanilla JS store (`createMultiTabStore`). 
+By utilizing React 18's `useSyncExternalStore`, components like `useTabData` now strictly subscribe to only the data they care about.
 
-### 1. Context API veya Redux Entegrasyonu
+> **Why it matters:** Typing in an input field inside a specific tab will **NO LONGER** trigger a re-render across the entire Tab system. Only the component that called `useTabData` for that specific tab will update!
 
-![image2.png](assets/image2.png)
+### 2. `TabInstanceContext` (The DX Boost)
+Developers no longer need to manually pass down the cryptic `instanceId` to every page component.
+Because `<TabPanels />` implicitly wraps your components with `<TabContent>`, it invisibly provides the context to all descendants.
 
-**Avantajlar:**
+```tsx
+// Inside any page (e.g., A-Page.tsx)
+const [data, setData] = useTabData<APageData>(); // Boom! Magic.
+```
+> `useTabData` automatically finds its own tab's context. If no context is found, it safely falls back to the globally active tab.
 
-- "setter", "getter" özellikleri.
-- Gerektiğinde redux entegrasyonu sağlanır.
+### 3. Built for Redux/Zustand Users
+For teams that prefer keeping form data in a global Redux slice instead of our internal data store, we introduced the `useTabInstanceId()` hook.
+```tsx
+import { useTabInstanceId } from 'react-multi-tab';
 
-### 2. URL Tabanlı State Yönetimi
+function MyReduxPage() {
+  const tabId = useTabInstanceId(); // Seamlessly gets the ID!
+  
+  const handleChange = () => {
+    dispatch(updateFormSlice({ tabId, data: '...' }));
+  }
+}
+```
 
-![image3.png](assets/image3.png)
+### 4. Smart Tab History
+When a tab is closed, the library remembers the exact history of your active tabs and gracefully falls back to the **previously active** tab instead of abruptly jumping to the end of the list. Exactly like VS Code!
 
-**Kazanımlar:**
+## Installation
 
-- Sayfa yenilemede state kaybı önlenir.
-- Browser geri/ileri tuşları ile tab geçişi
-- Bookmark desteği
-- Paylaşılabilir URL'ler
-- Belki redux persist yada daha güvenli, backend desteği ile coockie lerle veri cache ekleyebilme.
+```bash
+npm install react-multi-tab
+# or
+yarn add react-multi-tab
+```
 
-### 3. Decorator Pattern ile Genişletilebilirlik
+## Basic Usage
 
-![image4.png](assets/image4.png)
+Here is a full example showing how to build a tabbed layout using the vanilla URL `searchParamsAdapter` and the new explicit page registry.
 
-**Avantajlar:**
+### 1. Define Your Pages & Registry
 
-- Yeni sayfalar tek satırla eklenir
-- Merkezi kayıt sistemi
-- Dinamik sayfa yönetimi
-- Herhangi bir ekstra ayar gerektirmeyen entegrasyon...
+Create your page components and register them explicitly.
 
-### 4. Kullanıcı Odaklı Performans Optimizasyonu
+```tsx
+// src/registry.ts
+import { createPageRegistry, useTabData } from 'react-multi-tab';
 
-![image5.png](assets/image5.png)
+interface DashboardData { filter?: string; }
 
-**Performans Metrikleri:**
+function Dashboard({ instanceId }: { instanceId: string }) {
+  // 100% Type-safe!
+  const [data, setData] = useTabData<DashboardData>();
+  
+  return (
+    <div>
+      <h2>Dashboard</h2>
+      <p>Filter: {data.filter ?? 'None'}</p>
+      <button onClick={() => setData({ filter: 'Active' })}>Set Filter</button>
+    </div>
+  );
+}
 
-- Component başına optimized re-renders
-- Selective data subscription
-- Memory-efficient tab management
+function Settings() {
+  return <h2>Settings</h2>;
+}
 
-### 5. Tek Komutla MultiPage Entegrasyonu
+// Create a bundler-agnostic registry
+export const registry = createPageRegistry([
+  { id: 'dashboard', label: 'Dashboard', component: Dashboard },
+  { id: 'settings', label: 'Settings', component: Settings },
+]);
+```
 
-![image6.png](assets/image6.png)
+### 2. Wrap with Provider & Build the Layout
 
-**Entegrasyon Süresi:**
+Use the provided headless components to build your accessible tab interface. They include all necessary ARIA attributes and keyboard events.
 
-- Mevcut component'ler: 2-5 dakika veya daha az.
-- Yeni projeler: 10-15 dakika, tekrar kullanılabilirlik.
+```tsx
+// src/App.tsx
+import { 
+  MultiTabProvider, 
+  searchParamsAdapter,
+  TabList, 
+  TabTrigger, 
+  TabCloseButton, 
+  TabPanels,
+  useMultiTab
+} from 'react-multi-tab';
+import { registry } from './registry';
 
-### 6. Kolay Kullanım ve Düzenli Mimari
+function MainLayout() {
+  const { tabs, openTab } = useMultiTab();
 
-![image7.png](assets/image7.png)
+  return (
+    <div style={{ display: 'flex' }}>
+      {/* Sidebar / Menu */}
+      <nav style={{ width: 200 }}>
+        <button onClick={() => openTab('dashboard')}>Open Dashboard</button>
+        <button onClick={() => openTab('settings')}>Open Settings</button>
+      </nav>
 
-**Mimari Faydalar:**
+      <div style={{ flex: 1 }}>
+        {/* Accessible Tab List */}
+        <TabList aria-label="My Application Tabs">
+          {tabs.map((tab) => (
+            <TabTrigger key={tab.instanceId} instanceId={tab.instanceId}>
+              {tab.label}
+              <TabCloseButton instanceId={tab.instanceId} />
+            </TabTrigger>
+          ))}
+        </TabList>
 
-- Clean code prensipleri
-- Separation of concerns
-- Reusable components
-- Easy testing
+        {/* Renders all active and hidden tab panels */}
+        <TabPanels />
+      </div>
+    </div>
+  );
+}
 
-## Gerçek Dünya Uygulama Senaryoları
+export default function App() {
+  return (
+    <MultiTabProvider 
+      registry={registry}
+      adapter={searchParamsAdapter()} // Syncs active tabs to the browser URL
+    >
+      <MainLayout />
+    </MultiTabProvider>
+  );
+}
+```
 
-### Senaryo 1: Dashboard Uygulamaları
+## Running the Playground
 
-![image8.png](assets/image8.png)
+You can easily test the components locally using the built-in Playground!
 
-### Senaryo 2: E-Ticaret Yönetim Paneli
+1. Go to the project root directory.
+2. Run the playground command:
+```bash
+yarn run dev:demo
+```
+3. Open `http://localhost:3000` to interact with the demo.
 
-![image9.png](assets/image9.png)
+## Advanced Features
 
-### Senaryo 3: Telekom Altyapı Yönetim Sistemi
+### React Router Integration
 
-![image10.png](assets/image10.png)
+If you want to sync your tab state with React Router, you can use the optional adapter.
 
-### Senaryo 4: Lojistik ve Tedarik Zinciri Yönetimi
+```tsx
+import { MultiTabProvider } from 'react-multi-tab';
+import { useReactRouterAdapter } from 'react-multi-tab/adapters/react-router';
 
-![image11.png](assets/image11.png)
+function App() {
+  const routerAdapter = useReactRouterAdapter();
 
-### Senaryo 5: CRM Sistemleri
+  return (
+    <MultiTabProvider registry={registry} adapter={routerAdapter}>
+      <MainLayout />
+    </MultiTabProvider>
+  );
+}
+```
 
-![image10.png](assets/image10.png)
+## License
 
-## Çıkarılan Dersler
-
-1. **Context API veya Redux Entegrasyonu** - Mevcut state management sistemleriyle uyumlu çalışır
-2. **URL Tabanlı State Yönetimi** - Kullanıcı deneyimini önemli ölçüde iyileştirir
-3. **Decorator Pattern** - React uygulamalarında genişletilebilirliği artırır
-4. **Performance Optimizasyonu** - Kullanıcı tabanlı metriklerle ölçülmelidir
-5. **Tek Komutla Entegrasyon** - MultiPage sistemine hızlı geçiş sağlar
-6. **Kolay Kullanım ve Düzenli Mimari** - Developer verimliliğini maksimize eder
-
-## Sonuç
-
-Geliştirdiğimiz multi-tab çözümü, modern web uygulamalarının karmaşık state yönetimi ihtiyaçlarına elegant ve scalable çözümler sunuyor. Bu architecture sayesinde:
-
-- **Developer Experience**: Geliştirici başına %90 verimlilik artışı
-- **User Experience**: Kullanıcı iş akışında %90 hızlanma
-- **Maintainability**: Kod bakım maliyetlerinde %100 azalma
-- **Scalability**: Proje büyüklüğünden bağımsız stabil performans
-
-Bu pattern'i kullanarak, lisansız indirebilir ve kullanabilirsiniz.
-
----
-
-**Tags:** #React #TypeScript #StateManagement #WebDevelopment #Frontend #SoftwareArchitecture
-
-**Yazar:** Arif GEVENCİ  
-**Yayın Tarihi:** 16 Aralık 2025  
-**Okuma Süresi:** 4 dakika
+MIT © Arif GEVENCİ
