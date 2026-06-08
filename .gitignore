@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.map
+*.d.ts
+*.mts
+*.d.ts.map
+*.node
+*.tsbuildinfo
+*.js
