@@ -92,7 +92,8 @@ export interface MultiTabContextValue {
   store: {
     getState: () => MultiTabState;
     subscribe: (listener: () => void) => () => void;
-    dispatch: (action: { type: string; [key: string]: unknown }) => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dispatch: (action: any) => void;
   };
   registry: PageRegistry;
   openTab: (pageId: string, options?: OpenTabOptions) => string;
