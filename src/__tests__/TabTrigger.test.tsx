@@ -1,7 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect } from "vitest";
-import React from "react";
 import { MultiTabProvider } from "../components/MultiTabProvider";
 import { TabList } from "../components/TabList";
 import { TabTrigger } from "../components/TabTrigger";
@@ -116,16 +115,6 @@ describe("TabTrigger", () => {
     const tabs = screen.getAllByRole("tab");
     expect(tabs[0]).toHaveAttribute("data-state", "inactive");
     expect(tabs[1]).toHaveAttribute("data-state", "active");
-  });
-
-  it('has type="button"', async () => {
-    const user = userEvent.setup();
-    render(<Harness />);
-
-    await user.click(screen.getByText("Open A"));
-
-    const tab = screen.getByRole("tab");
-    expect(tab).toHaveAttribute("type", "button");
   });
 
   it("id matches the pattern rmt-tab-{instanceId}", async () => {

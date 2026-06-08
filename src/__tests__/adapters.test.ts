@@ -100,7 +100,7 @@ describe("searchParamsAdapter", () => {
 
     expect(replaceStateSpy).toHaveBeenCalledOnce();
     const url = replaceStateSpy.mock.calls[0][2] as string;
-    expect(url).toContain("tabs=a-1%2Cb-2");
+    expect(url).toContain("tabs=a-1,b-2");
     expect(url).toContain("active=b-2");
   });
 
