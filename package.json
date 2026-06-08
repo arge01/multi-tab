@@ -1,6 +1,6 @@
 {
   "name": "react-multi-tab",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A headless, accessible, router-agnostic multi-tab component library for React with TypeScript generics",
   "type": "module",
   "license": "MIT",
