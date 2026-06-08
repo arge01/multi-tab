@@ -7,6 +7,7 @@ module.exports = {
     open: true,
   },
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: [
       {
         find: "@",
